@@ -27,7 +27,7 @@ def galaxie(event):
     dt = 1  # pas de temps
     n = 100  # nombre de corps
     m = 2  # masse des corps
-    L = 500  # Longueur caractèristique
+    L = 500  # Longueur caractÃ¨ristique
     speed = 1000
     slid1.SetValue(speed)
     strspeed.SetLabel(str(speed))
@@ -128,7 +128,7 @@ def threebody(event):
     scene.scale=(0.5,0.5,0.5)
     scene.title = "3 corps"
     scene.fov = pi / 2
-    # définition des paramètres
+    # dÃ©finition des paramÃ¨tres
     G = 1  # constante gravitationnelle
     dt = 0.001  # pas de temps
     n = 3  # nombre de corps
@@ -223,11 +223,11 @@ def terrelune(event):
     scene = display(window=w, width=1200, height=850, background=(0.1, 0.1, 0.1))
     scene.scale = (0.0000000013, 0.0000000013, 0.0000000013)
     scene.fov = pi / 2
-    # définition des paramètres
+    # dÃ©finition des paramÃ¨tres
     G = 6.67384 * 10 ** -11  # constante gravitationnelle
     dt = 600  # pas de temps
     n = 2  # nombre de corps
-    m = 1  # masse des corps              #Longueur caractèristique
+    m = 1  # masse des corps              #Longueur caractÃ¨ristique
     speed = 150  # higher is slower
     slid1.SetValue(speed)
     strspeed.SetLabel(str(speed))
@@ -404,7 +404,7 @@ def sphere__(event):
     scene = display(window=w, width=1200, height=850, background=(0.1, 0.1, 0.1))
     scene.scale = (0.05, 0.05, 0.05)
     scene.fov = pi / 2
-    # définition des paramètres
+    # dÃ©finition des paramÃ¨tres
     G = 1  # constante gravitationnelle
     dt = 0.5  # pas de temps
     n = 120  # nombre de corps
@@ -568,7 +568,7 @@ def propos(event):
             t5.SetFont(textfont)
             t6 = wx.StaticText(pnl1, pos=(20, 140), label="Python : "+str(sys.version.split()[0])+"   WxPython : "+str(wx.VERSION_STRING), style=wx.ALIGN_CENTER)
             t6.SetFont(textfont)
-            t3 = wx.StaticText(pnl1, pos=(20, 170), label="Copyright © 2016, La Blotisserie Inc.",style =wx.ALIGN_CENTER)
+            t3 = wx.StaticText(pnl1, pos=(20, 170), label="Copyright Â© 2016, La Blotisserie Inc.",style =wx.ALIGN_CENTER)
             t3.SetFont(textfont)
             png = wx.Image("logo.png", wx.BITMAP_TYPE_ANY).ConvertToBitmap()
             wx.StaticBitmap(pnl1, -1, png, (260, 15), (png.GetWidth(), png.GetHeight()))
@@ -583,7 +583,7 @@ def propos(event):
 
     class MonApp(wx.App):
         def OnInit(self):
-            fen = prop("À propos")
+            fen = prop("Ã€ propos")
             fen.Show(True)
             self.SetTopWindow(fen)
             return True
@@ -622,7 +622,7 @@ def fenetre():
     w.win.Bind(wx.EVT_MENU, quitter, item1)
     item2 = menu2.Append(-1, 'Ouvrir aide')
     w.win.Bind(wx.EVT_MENU, aide, item2)
-    item3 = menu2.Append(-1, 'À propos')
+    item3 = menu2.Append(-1, 'Ã€ propos')
     w.win.Bind(wx.EVT_MENU, propos, item3)
     menubar.Append(menu1, 'Fichier')
     menubar.Append(menu2, 'Aide')
@@ -649,7 +649,7 @@ def fenetre():
     btnq.Bind(wx.EVT_BUTTON, quitter)
     btnr = wx.Button(pnl,label='Reset', pos=(1400, 785))
     btnr.Bind(wx.EVT_BUTTON, reset)
-    btnap = wx.Button(pnl, label='À propos', pos=(1215, 785))
+    btnap = wx.Button(pnl, label='Ã€ propos', pos=(1215, 785))
     btnap.Bind(wx.EVT_BUTTON, propos)
 
     slid1 = wx.Slider(pnl, pos=(1250, 230),size=(280,50),  minValue=1, maxValue=2000)
