@@ -287,37 +287,38 @@ def terrelune(event):
     t0 = 0
 
     ###definition des 2corps
-    Corps0 = sphere(radius=6300000, make_trail=False, color=(0.1, 0.4, 0.8))
-    Corps1 = sphere(pos=(0, 384000000, 0), make_trail=False, radius=1700000, color=(0.9, 0.9, 0.9))
-    TerreLune = [Corps0, Corps1]
-    texte1 = text(text='Terre', align='center', depth=0.1, color=(0.1, 0.4, 0.8), height=20000000, font="Times")
-    texte2 = text(text='Lune', align='center', depth=0.1, color=(0.9, 0.9, 0.9), height=20000000, font="Times")
+    corps0 = sphere(radius=6300000, make_trail=False, color=(0.1, 0.4, 0.8))
+    corps1 = sphere(pos=(0, 384000000, 0), make_trail=False, radius=1700000, color=(0.9, 0.9, 0.9))
+    TerreLune = [corps0, corps1]
+    texte0 = text(text='Terre', align='center', depth=0.1, color=(0.1, 0.4, 0.8), height=20000000, font="Times")
+    texte1 = text(text='Lune', align='center', depth=0.1, color=(0.9, 0.9, 0.9), height=20000000, font="Times")
 
     # masses
-    Corps0.m = 5.972 * 10 ** 24
-    Corps1.m = 7.35 * 10 ** 22
+    corps0.m = 5.972 * 10 ** 24
+    corps1.m = 7.35 * 10 ** 22
     ###vitesses
-    Corps0.v = vector(0, 0, 0)
-    Corps1.v = vector(0, 1052, 0)
+    corps0.v = vector(0, 0, 0)
+    corps1.v = vector(0, 1052, 0)
     ###positions
-    Corps0.x, Corps0.y, Corps0.z = 0, 0, 0
-    Corps1.x, Corps1.y, Corps1.z = 384000000, 0, 0
+    corps0.x, corps0.y, corps0.z = 0, 0, 0
+    corps1.x, corps1.y, corps1.z = 384000000, 0, 0
 
     def nbody(Corps):
         t=t0
         while sw == 3:
+            scene.center = corps0.pos
             if t == t0+dt:
-                Corps0.make_trail = True
-                Corps0.trail_type = "curve"
-                Corps0.retain = 10000
-                Corps1.make_trail = True
-                Corps1.trail_type = "curve"
-                Corps1.retain = 10000
+                corps0.make_trail = True
+                corps0.trail_type = "curve"
+                corps0.retain = 5000
+                corps1.make_trail = True
+                corps1.trail_type = "curve"
+                corps1.retain = 8500
             setpause()
             updatetime(t)
             t+=dt
-            texte1.pos = Corps0.pos + (0, 1.6e7, 0)
-            texte2.pos = Corps1.pos - (0, 2e7, 0)
+            texte0.pos = corps0.pos + (0, 1.6e7, 0)
+            texte1.pos = corps1.pos - (0, 2e7, 0)
             rate(speed)
             M = acceleration(Corps,n,G)
             for i in range(n):
@@ -505,15 +506,26 @@ def solaire(event):
 
     t0 = 0
 
-    corps0 = sphere(radius=695700000*10, make_trail=False, color=color.orange, retain=0)
-    corps1 = sphere(radius=2440000*10, make_trail=False, color=color.white, retain=400)
-    corps2 = sphere(radius=6052000*10, make_trail=False, color=color.red, retain=1000)
-    corps3 = sphere(radius=6371000*10, make_trail=False, color=(0.1, 0.4, 0.8), retain=1600)
-    corps4 = sphere(radius=3390000*10, make_trail=False, color=color.red, retain=3000)
-    corps5 = sphere(radius=69911000*10, make_trail=False, color=color.red, retain=4000)
-    corps6 = sphere(radius=58232000*10, make_trail=False, color=color.red, retain=5000)
-    corps7 = sphere(radius=25362000*10, make_trail=False, color=color.red, retain=6000)
-    corps8 = sphere(radius=24622000*10, make_trail=False, color=color.red, retain=7000)
+
+    colorS=(1, 1, 0.4)
+    colorM=(0.9, 0.9, 0.9)
+    colorV =(1, 0.7, 0.2)
+    colorT =(0.1, 0.4, 0.8)
+    colorM =(0.9, 0.3, 0.2)
+    colorJ =(0.8, 0.7, 0.2)
+    colorS =(1, 0.5, 0.2)
+    colorU =(0.1, 0.6, 0.8)
+    colorN =(0.1, 0.4, 0.8)
+
+    corps0 = sphere(radius=695700000*10, make_trail=False, color=colorS, retain=1000)
+    corps1 = sphere(radius=2440000*10, make_trail=False, color=colorM, retain=400)
+    corps2 = sphere(radius=6052000*10, make_trail=False, color=colorV, retain=1000)
+    corps3 = sphere(radius=6371000*10, make_trail=False, color=colorT, retain=1700)
+    corps4 = sphere(radius=3390000*10, make_trail=False, color=colorM, retain=2500)
+    corps5 = sphere(radius=69911000*10, make_trail=False, color=colorJ, retain=5000)
+    corps6 = sphere(radius=58232000*10, make_trail=False, color=colorS, retain=6500)
+    corps7 = sphere(radius=25362000*10, make_trail=False, color=colorU, retain=8000)
+    corps8 = sphere(radius=24622000*10, make_trail=False, color=colorN, retain=10000)
     corps0.m = 1.9891 * 10 ** 30
     corps1.m = 330.2 * 10 ** 21
     corps2.m = 4.8685 * 10 ** 24
@@ -557,9 +569,21 @@ def solaire(event):
     C7.x, C7.y, C7.z = 2734998229000, 0, 0
     C8.x, C8.y, C8.z = -4452940833000, 0, 0
 
+    ##texteS1 = text(text='S', align='center', depth=0.1, color=colorS, height=200000000000, font="Times")
+    texteM1 = text(text='Me', align='center', depth=0.1, color=colorM, height=15000000000, font="Times")
+    texteV = text(text='V', align='center', depth=0.1, color=colorV, height=20000000000, font="Times")
+    texteT = text(text='T', align='center', depth=0.1, color=colorT, height=20000000000, font="Times")
+    texteM2 = text(text='M', align='center', depth=0.1, color=colorM, height=20000000000, font="Times")
+    texteJ = text(text='J', align='center', depth=0.1, color=colorJ, height=100000000000, font="Times")
+    texteS2 = text(text='Sa', align='center', depth=0.1, color=colorS, height=85000000000, font="Times")
+    texteU = text(text='U', align='center', depth=0.1, color=colorU, height=65000000000, font="Times")
+    texteN = text(text='N', align='center', depth=0.1, color=colorN, height=75000000000, font="Times")
+
+
     def nbody(Corps):
         t=t0
         while sw == 6:
+            scene.center = corps0.pos
             if t == t0+dt:
                 corps0.make_trail = True
                 corps0.trail_type = "curve"
@@ -583,6 +607,15 @@ def solaire(event):
             updatetime(t)
             t+=dt
             M = acceleration(Corps,n,G)
+            ##texteS1.pos = corps0.pos + (0, 1e10, 0)
+            texteM1.pos = corps1.pos + (0, 1e10, 0)
+            texteV.pos = corps2.pos + (0, 1e10, 0)
+            texteT.pos = corps3.pos + (0, 1e10, 0)
+            texteM2.pos = corps4.pos + (0, 1e10, 0)
+            texteJ.pos = corps5.pos + (0, 1e10, 0)
+            texteS2.pos = corps6.pos + (-8e10,0 , 0)
+            texteU.pos = corps7.pos + (8e10,0 , 0)
+            texteN.pos = corps8.pos + (-8e10,0 ,0 )
             rate(speed)
             for i in range(n):
                 corps = Corps[i]
