@@ -10,7 +10,7 @@ import wx
 import os
 import sys
 
-version="beta 1.2.6"
+version="beta 1.1.6"
 
 aide_thread = 0
 propos_thread = 0
@@ -73,7 +73,6 @@ def updatetime(t):
             t2=(t-t1*31557600)//86400
             texttime.SetLabel(str(round(t1,1))+'y  '+str(round(t2,1))+'d  ')
         t0=t
-            
 
 #############################################
 
@@ -732,4 +731,3 @@ def fenetre():
 
 
 fenetre()
-
