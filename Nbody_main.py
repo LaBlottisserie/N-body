@@ -81,12 +81,18 @@ def setpause():
     while c_pause == 1:
         sleep(0.1)
 
+def resetpause():
+    global c_pause
+    c_pause = 0
+    btnpause.SetBitmap(pause1)
+
 #############################################
 
 def galaxie(event):
     global scene, sw, speed,t0,c_pause
     sw = 1
     resettime()
+    resetpause()
 
     scene.delete()
     scene = display(window =w,width=1200, height=850, background=(0.1, 0.1, 0.1))
@@ -108,8 +114,6 @@ def galaxie(event):
     strspeed.SetLabel(str(speed))
 
     t0 = 0
-    c_pause = 0
-
 
     def acceleration(C):
         D = np.zeros((n, n))
@@ -196,6 +200,7 @@ def threebody(event):
     global G, scene,sw,speed,t0,c_pause
     sw = 2
     resettime()
+    resetpause()
 
     scene.delete()
     scene = display(window=w, width=1200, height=850, background=(0.1, 0.1, 0.1))
@@ -214,7 +219,6 @@ def threebody(event):
     strspeed.SetLabel(str(speed))
 
     t0 = 0
-    c_pause = 0
 
     corps0 = sphere(radius=rayon, make_trail=False, color=color.cyan,retain=2100)
     corps1 = sphere(radius=rayon, make_trail=False, color=color.white,retain=2100)
@@ -264,6 +268,7 @@ def terrelune(event):
     global G, scene, sw,speed,t0,c_pause
     sw = 3
     resettime()
+    resetpause()
 
     scene.delete()
     scene = display(window=w, width=1200, height=850, background=(0.1, 0.1, 0.1))
@@ -280,7 +285,6 @@ def terrelune(event):
     strspeed.SetLabel(str(speed))
 
     t0 = 0
-    c_pause = 0
 
     ###definition des 2corps
     Corps0 = sphere(radius=6300000, make_trail=False, color=(0.1, 0.4, 0.8))
@@ -328,6 +332,7 @@ def saturne(event):
     global G, scene, sw, speed,t0,c_pause
     sw = 4
     resettime()
+    resetpause()
 
     scene.delete()
     scene = display(window=w, width=1200, height=850, background=(0.1, 0.1, 0.1))
@@ -349,7 +354,6 @@ def saturne(event):
     strspeed.SetLabel(str(speed))
 
     t0=0
-    c_pause =0
 
     def acceleration(C):
         D = []
@@ -421,6 +425,7 @@ def sphere__(event):
     global G, scene, sw, speed,t0,c_pause
     sw = 5
     resettime()
+    resetpause()
 
     scene.delete()
     scene = display(window=w, width=1200, height=850, background=(0.1, 0.1, 0.1))
@@ -440,7 +445,6 @@ def sphere__(event):
     strspeed.SetLabel(str(speed))
 
     t0=0
-    c_pause=0
 
     def nuagespherique(corps, maxi):
         teta = random.uniform(0, 2 * pi)
@@ -486,6 +490,7 @@ def solaire(event):
     global G, scene, sw, speed,t0,c_pause
     sw = 6
     resettime()
+    resetpause()
 
     scene.delete()
     scene = display(window=w, width=1200, height=850, background=(0.1, 0.1, 0.1))
@@ -499,7 +504,6 @@ def solaire(event):
     strspeed.SetLabel(str(speed))
 
     t0 = 0
-    c_pause = 0
 
     corps0 = sphere(radius=695700000*10, make_trail=False, color=color.orange, retain=0)
     corps1 = sphere(radius=2440000*10, make_trail=False, color=color.white, retain=400)
@@ -587,17 +591,11 @@ def solaire(event):
 
     nbody(syssolaire)
 
-############################################
-
-def quitter(event):
-    os._exit(0)
-
 def reset(event):
     global scene, sw,c_pause
     sw = 0
     resettime()
-
-    c_pause=0
+    resetpause()
 
     scene.delete()
     scene = display(window=w, width=1200, height=850, background=(0.1, 0.1, 0.1))
@@ -606,12 +604,19 @@ def reset(event):
 
     while sw == 0 : rate(1)
 
+############################################
+
+def quitter(event):
+    os._exit(0)
+
 def pause(event):
     global c_pause
     if c_pause != 1:
         c_pause = 1
+        btnpause.SetBitmap(play1)
     else:
         c_pause = 0
+        btnpause.SetBitmap(pause1)
 
 #############################################
 
@@ -675,7 +680,7 @@ def propos(event):
             t6.SetFont(textfont)
             t3 = wx.StaticText(pnl1, pos=(20, 170), label="Copyright © 2016, La Blotisserie Inc.",style =wx.ALIGN_CENTER)
             t3.SetFont(textfont)
-            png = wx.Image("logo.png", wx.BITMAP_TYPE_ANY).ConvertToBitmap()
+            png = wx.Image("images/logo.png", wx.BITMAP_TYPE_ANY).ConvertToBitmap()
             wx.StaticBitmap(pnl1, -1, png, (260, 15), (png.GetWidth(), png.GetHeight()))
             closeBtn = wx.Button(pnl1, label="Fermer",pos=(290, 160))
             closeBtn.Bind(wx.EVT_BUTTON, self.onClose)
@@ -703,9 +708,10 @@ def propos(event):
     else : return 0
 
 def fenetre():
-    global scene,w,slid1,speed,sw,strspeed,titlefont,textboldfont,textfont,timetxt,texttime
+    global scene,w,slid1,speed,sw,strspeed,titlefont,textboldfont,textfont,timetxt,texttime,c_pause,btnpause,pause1,play1
 
     speed = 1
+    c_pause = 0
 
     ws = wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X)
     hs = wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)
@@ -770,17 +776,20 @@ def fenetre():
     btnr.Bind(wx.EVT_BUTTON, reset)
     btnap = wx.Button(pnl, label='À propos', pos=(1215, 785))
     btnap.Bind(wx.EVT_BUTTON, propos)
-    btnpause = wx.Button(pnl, label='Pause', pos=(1215, 285))
+
+    pause1 = wx.Image("images/pause.png",wx.BITMAP_TYPE_ANY).ConvertToBitmap()
+    play1 = wx.Image("images/play.png",wx.BITMAP_TYPE_ANY).ConvertToBitmap()
+    btnpause = wx.BitmapButton(pnl, bitmap=pause1, pos=(1260, 200),size=(50,50))
     btnpause.Bind(wx.EVT_BUTTON, pause)
 
 
-    slid1 = wx.Slider(pnl, pos=(1250, 230),size=(280,50),  minValue=1, maxValue=1000)
+    slid1 = wx.Slider(pnl, pos=(1330, 230),size=(190,50),  minValue=1, maxValue=1000)
     slid1.Bind(wx.EVT_SCROLL, setspeed)
-    strspeed = wx.StaticText(pnl, pos=(1375, 200), label=str(speed))
+    strspeed = wx.StaticText(pnl, pos=(1445, 200), label=str(speed))
 
-    text1 = wx.StaticText(pnl, pos=(1250, 200), label="Vitesse de l'animation : ")
-    text2 =wx.StaticText(pnl, pos=(1243, 230), label="1")
-    text3 = wx.StaticText(pnl, pos=(1530, 230), label="1000")
+    text1 = wx.StaticText(pnl, pos=(1320, 200), label="Vitesse de l'animation : ")
+    text2 =wx.StaticText(pnl, pos=(1320, 230), label="1")
+    text3 = wx.StaticText(pnl, pos=(1520, 230), label="1000")
 
 
 fenetre()
