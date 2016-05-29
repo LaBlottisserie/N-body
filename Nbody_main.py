@@ -59,19 +59,19 @@ def updatetime(t):
     global t0
     if t-t0 >= 0.1:
         if t<3600:
-            texttime.SetLabel(str(round(t,1))+'s')
+            texttime.SetLabel(str(round(t,1))+'s  ')
         elif t>=3600 and t<86400:
             t1=t//3600
             t2=t-3600*t1
-            texttime.SetLabel(str(round(t1,1))+'h'+str(round(t2,1))+'s')
+            texttime.SetLabel(str(round(t1,1))+'h  '+str(round(t2,1))+'s  ')
         elif t>=86400 and t<31557600:
             t1=t//86400
             t2=(t-t1*86400)//3600
-            texttime.SetLabel(str(round(t1,1))+'jour'+str(round(t2,1))+'h')
+            texttime.SetLabel(str(round(t1,1))+'d  '+str(round(t2,1))+'h  ')
         elif t>=31557600:
             t1=t//31557600
             t2=(t-t1*31557600)//86400
-            texttime.SetLabel(str(round(t1,1))+'annee'+str(round(t2,1))+'jour')
+            texttime.SetLabel(str(round(t1,1))+'y  '+str(round(t2,1))+'d  ')
         t0=t
             
 
