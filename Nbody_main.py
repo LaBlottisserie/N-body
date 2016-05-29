@@ -10,7 +10,7 @@ import wx
 import os
 import sys
 
-version="beta 1.2.1"
+version="beta 1.2.3"
 
 aide_thread = 0
 propos_thread = 0
@@ -74,28 +74,42 @@ def updatetime(t):
             texttime.SetLabel(str(round(t1,1))+'y  '+str(round(t2,1))+'d  ')
         t0=t
 
+def resettime():
+    texttime.SetLabel('0')
+
+def setpause():
+    while c_pause == 1:
+        sleep(0.1)
+
 #############################################
 
 def galaxie(event):
-    global scene, sw, speed,t0
+    global scene, sw, speed,t0,c_pause
     sw = 1
+    resettime()
+
     scene.delete()
     scene = display(window =w,width=1200, height=850, background=(0.1, 0.1, 0.1))
     scene.title = "GALAXIE"
     scene.fov = pi / 2
     scene.scale = (0.0005,0.0005,0.0005)
+
     G = 1  # constante gravitationnelle
     dt = 1  # pas de temps
     n = 100  # nombre de corps
     m = 2  # masse des corps
     L = 500  # Longueur caractèristique
-    t0=0
-    speed = 25
-    slid1.SetValue(speed)
-    strspeed.SetLabel(str(speed))
     e = 50  # epaisseur du bulbe galactique
     rayon = 10
     mt = 20000
+
+    speed = 25
+    slid1.SetValue(speed)
+    strspeed.SetLabel(str(speed))
+
+    t0 = 0
+    c_pause = 0
+
 
     def acceleration(C):
         D = np.zeros((n, n))
@@ -165,6 +179,7 @@ def galaxie(event):
             Corps.append(creercorps())
         while sw==1:
             M = acceleration(Corps)
+            setpause()
             updatetime(t)
             t += dt
             rate(speed)
@@ -178,23 +193,28 @@ def galaxie(event):
     nbody()
 
 def threebody(event):
-    global G, scene,sw,speed,t0
+    global G, scene,sw,speed,t0,c_pause
     sw = 2
+    resettime()
+
     scene.delete()
     scene = display(window=w, width=1200, height=850, background=(0.1, 0.1, 0.1))
     scene.scale=(0.5,0.5,0.5)
     scene.title = "3 corps"
     scene.fov = pi / 2
+
     # définition des paramètres
     G = 1  # constante gravitationnelle
     dt = 0.001  # pas de temps
     n = 3  # nombre de corps
-    t0=0
+    rayon = 0.05
 
-    speed = 500  # higher is slower
+    speed = 500
     slid1.SetValue(speed)
     strspeed.SetLabel(str(speed))
-    rayon = 0.05
+
+    t0 = 0
+    c_pause = 0
 
     corps0 = sphere(radius=rayon, make_trail=False, color=color.cyan,retain=2100)
     corps1 = sphere(radius=rayon, make_trail=False, color=color.white,retain=2100)
@@ -220,17 +240,16 @@ def threebody(event):
     def nbody(Corps):
         t=t0
         ###Vpython settings###
-        pid=0
         while sw ==2:
-            if pid==2:
+            if t==t0+dt:
                 corps0.make_trail = True
                 corps0.trail_type = "curve"
                 corps1.make_trail = True
                 corps1.trail_type = "curve"
                 corps2.make_trail = True
                 corps2.trail_type = "curve"
-            pid+=1
             M = acceleration(Corps,n,G)
+            setpause()
             updatetime(t)
             t+=dt
             rate(speed)
@@ -242,33 +261,37 @@ def threebody(event):
     nbody(threebodies)
 
 def terrelune(event):
-    global G, scene, sw,speed,t0
+    global G, scene, sw,speed,t0,c_pause
     sw = 3
+    resettime()
+
     scene.delete()
     scene = display(window=w, width=1200, height=850, background=(0.1, 0.1, 0.1))
     scene.scale = (0.0000000013, 0.0000000013, 0.0000000013)
     scene.fov = pi / 2
+
     # définition des paramètres
     G = 6.67384 * 10 ** -11  # constante gravitationnelle
     dt = 600  # pas de temps
     n = 2  # nombre de corps
-    speed = 150  # higher is slower
+
+    speed = 150
     slid1.SetValue(speed)
     strspeed.SetLabel(str(speed))
 
-    t0=0
+    t0 = 0
+    c_pause = 0
 
     ###definition des 2corps
-
     Corps0 = sphere(radius=6300000, make_trail=False, color=(0.1, 0.4, 0.8))
     Corps1 = sphere(pos=(0, 384000000, 0), make_trail=False, radius=1700000, color=(0.9, 0.9, 0.9))
     TerreLune = [Corps0, Corps1]
     texte1 = text(text='Terre', align='center', depth=0.1, color=(0.1, 0.4, 0.8), height=20000000, font="Times")
     texte2 = text(text='Lune', align='center', depth=0.1, color=(0.9, 0.9, 0.9), height=20000000, font="Times")
+
     # masses
     Corps0.m = 5.972 * 10 ** 24
     Corps1.m = 7.35 * 10 ** 22
-
     ###vitesses
     Corps0.v = vector(0, 0, 0)
     Corps1.v = vector(0, 1052, 0)
@@ -278,16 +301,15 @@ def terrelune(event):
 
     def nbody(Corps):
         t=t0
-        pid = 0
         while sw == 3:
-            if pid == 2:
+            if t == t0+dt:
                 Corps0.make_trail = True
                 Corps0.trail_type = "curve"
                 Corps0.retain = 10000
                 Corps1.make_trail = True
                 Corps1.trail_type = "curve"
                 Corps1.retain = 10000
-            pid += 1
+            setpause()
             updatetime(t)
             t+=dt
             texte1.pos = Corps0.pos + (0, 1.6e7, 0)
@@ -303,23 +325,31 @@ def terrelune(event):
     nbody(TerreLune)
 
 def saturne(event):
-    global G, scene, sw, speed,t0
+    global G, scene, sw, speed,t0,c_pause
     sw = 4
+    resettime()
+
     scene.delete()
     scene = display(window=w, width=1200, height=850, background=(0.1, 0.1, 0.1))
+    scene.scale = (0.0000000037, 0.0000000037, 0.0000000037)
     scene.fov = pi / 2
+    scene.forward=(0.1,0.9,-0.3)
+
     G = 6.67384 * 10 ** -11  # constante gravitationnelle
     dt = 20  # pas de temps
     n = 6000  # nombre de corps
     m = 5.6*10**19  # masse des corps
     L = 10  # Longueur caract?ristique
+    rayon = 728000
+    rsaturne = 58232000
+    Msat = 5.6 * 10 ** 26
+
     speed = 20
     slid1.SetValue(speed)
     strspeed.SetLabel(str(speed))
-    rayon = 728000
-    rsaturne = 58232000
-    Msat = 5.6*10**26
+
     t0=0
+    c_pause =0
 
     def acceleration(C):
         D = []
@@ -375,6 +405,7 @@ def saturne(event):
             Corps.append(creercorps())
         while sw == 4:
             M = acceleration(Corps)
+            setpause()
             updatetime(t)
             t += dt
             rate(speed)
@@ -387,23 +418,29 @@ def saturne(event):
     nbody()
 
 def sphere__(event):
-    global G, scene, sw, speed,t0
+    global G, scene, sw, speed,t0,c_pause
     sw = 5
+    resettime()
+
     scene.delete()
     scene = display(window=w, width=1200, height=850, background=(0.1, 0.1, 0.1))
     scene.scale = (0.022, 0.022, 0.022)
     scene.fov = pi / 2
+
     # définition des paramètres
     G = 1  # constante gravitationnelle
     dt = 0.5  # pas de temps
     n = 120  # nombre de corps
     m = 0.01  # masse des corps
     L = 20  # Longueur caract?ristique
+    rayon = 0.5
+
     speed = 200
     slid1.SetValue(speed)
     strspeed.SetLabel(str(speed))
-    rayon = 0.5
+
     t0=0
+    c_pause=0
 
     def nuagespherique(corps, maxi):
         teta = random.uniform(0, 2 * pi)
@@ -430,10 +467,10 @@ def sphere__(event):
         Corps = [trounoir]
         for i in range(n - 1):
             Corps.append(creercorps())
-
         t=t0
         while sw == 5:
             M = acceleration(Corps,n,G)
+            setpause()
             updatetime(t)
             t+=dt
             rate(speed)
@@ -446,8 +483,10 @@ def sphere__(event):
     nbody()
 
 def solaire(event):
-    global G, scene, sw, speed,t0
+    global G, scene, sw, speed,t0,c_pause
     sw = 6
+    resettime()
+
     scene.delete()
     scene = display(window=w, width=1200, height=850, background=(0.1, 0.1, 0.1))
     scene.fov = pi / 2
@@ -456,9 +495,11 @@ def solaire(event):
     dt = 3600  # pas de temps
     n = 9  # nombre de corps
     speed = 500
-    t0=0
     slid1.SetValue(speed)
     strspeed.SetLabel(str(speed))
+
+    t0 = 0
+    c_pause = 0
 
     corps0 = sphere(radius=695700000*10, make_trail=False, color=color.orange, retain=0)
     corps1 = sphere(radius=2440000*10, make_trail=False, color=color.white, retain=400)
@@ -513,10 +554,9 @@ def solaire(event):
     C8.x, C8.y, C8.z = -4452940833000, 0, 0
 
     def nbody(Corps):
-        pid = 0
         t=t0
         while sw == 6:
-            if pid == 2:
+            if t == t0+dt:
                 corps0.make_trail = True
                 corps0.trail_type = "curve"
                 corps1.make_trail = True
@@ -535,7 +575,7 @@ def solaire(event):
                 corps7.trail_type = "curve"
                 corps8.make_trail = True
                 corps8.trail_type = "curve"
-            pid += 1
+            setpause()
             updatetime(t)
             t+=dt
             M = acceleration(Corps,n,G)
@@ -553,15 +593,25 @@ def quitter(event):
     os._exit(0)
 
 def reset(event):
-    global scene, sw
+    global scene, sw,c_pause
     sw = 0
+    resettime()
+
+    c_pause=0
+
     scene.delete()
     scene = display(window=w, width=1200, height=850, background=(0.1, 0.1, 0.1))
     scene.scale = (0.013, 0.013, 0.013)
     texte3d1 = text(text='N-corps', align='center', depth=-2, color=(0.7, 0.2, 0.2), height=20, font="Sans",pos=(0, -6, 0))
-    texttime.SetLabel(str(0))
 
     while sw == 0 : rate(1)
+
+def pause(event):
+    global c_pause
+    if c_pause != 1:
+        c_pause = 1
+    else:
+        c_pause = 0
 
 #############################################
 
@@ -668,18 +718,19 @@ def fenetre():
     w = window(title = "N-Corps "+str(version),menus=True,  width=1600, height=870, style=(wx.DEFAULT_FRAME_STYLE) & ~ (wx.RESIZE_BORDER|wx.MAXIMIZE_BOX|wx.CLOSE_BOX),x=int((ws - 1600) / 2), y=int((hs - 850)) / 2)
     pnl = w.panel
 
-    timecolour = wx.Colour(150,40,50)
+    timecolour = (150,40,50)
+    backcolour = (0.1,0.1,0.1)
 
     timetxt = wx.StaticText(pnl, pos=(20, 20), label='Time :')
     timetxt.SetFont(timefont)
-    timetxt.SetBackgroundColour(wx.Colour(25,25,25))
+    timetxt.SetBackgroundColour(tuple([255*x for x in backcolour]))
     timetxt.SetForegroundColour(timecolour)
     texttime = wx.StaticText(pnl, pos=(100, 20), label='0')
     texttime.SetFont(timefont)
-    texttime.SetBackgroundColour(wx.Colour(25, 25, 25))
+    texttime.SetBackgroundColour(tuple([255*x for x in backcolour]))
     texttime.SetForegroundColour(timecolour)
 
-    scene = display(window=w, width=1200, height=850, background=(0.1, 0.1, 0.1))
+    scene = display(window=w, width=1200, height=850, background=backcolour)
     scene.scale = (0.013, 0.013, 0.013)
 
     menubar = w.menubar
@@ -719,6 +770,9 @@ def fenetre():
     btnr.Bind(wx.EVT_BUTTON, reset)
     btnap = wx.Button(pnl, label='À propos', pos=(1215, 785))
     btnap.Bind(wx.EVT_BUTTON, propos)
+    btnpause = wx.Button(pnl, label='Pause', pos=(1215, 285))
+    btnpause.Bind(wx.EVT_BUTTON, pause)
+
 
     slid1 = wx.Slider(pnl, pos=(1250, 230),size=(280,50),  minValue=1, maxValue=1000)
     slid1.Bind(wx.EVT_SCROLL, setspeed)
@@ -727,7 +781,6 @@ def fenetre():
     text1 = wx.StaticText(pnl, pos=(1250, 200), label="Vitesse de l'animation : ")
     text2 =wx.StaticText(pnl, pos=(1243, 230), label="1")
     text3 = wx.StaticText(pnl, pos=(1530, 230), label="1000")
-
 
 
 fenetre()
