@@ -55,6 +55,11 @@ def MAJvitesse(corps, mat,n,G,dt):
 def MAJposition(corps,dt):
     corps.pos = corps.pos + (corps.v) * dt
 
+def nuageradial(corps, maxi,e):
+    corps.x = alea.normal(0, maxi)
+    corps.y = alea.normal(0, maxi)
+    corps.z = alea.normal(0, e)
+
 def updatetime(t):
     global t0
     if t-t0 >= 0.1:
@@ -86,17 +91,48 @@ def resetpause():
     c_pause = 0
     btnpause.SetBitmap(pause1)
 
+def resetscene():
+    global scene,graph1,f1
+    resettime()
+    resetpause()
+    scene.delete()
+    scene = display(window=w, width=1200, height=850, background=(0.1, 0.1, 0.1))
+
+def maketrail(Corps,t,dt):
+    if t == t0 + dt:
+        for i in Corps:
+            i.make_trail = True
+            i.trail_type = "curve"
+
+def ENmeca(C):
+    E = 0
+    for i in range(len(C)):
+        corps0 = C[i]
+        E += (corps0.v.x ** 2 + corps0.v.y ** 2 + corps0.v.z ** 2) * corps0.m * 0.5
+        for k in range(len(C)):
+            corps1 = C[k]
+            if i != k:
+                dx = corps1.x - corps0.x
+                dy = corps1.y - corps0.y
+                dz = corps1.z - corps0.z
+                d = sqrt(dx * dx + dy * dy + dz * dz)
+                E -= G * corps0.m * corps1.m / d
+    return E
+
+def initgraph(colorg):
+    global f1
+    f1 = gcurve(color=colorg)
+
+def newpointgraph(t,k,Corps,p):
+    if k%p == 0:
+        f1.plot(pos=(t, ENmeca(Corps)))
+
 #############################################
 
 def galaxie(event):
     global scene, sw, speed,t0,c_pause
     sw = 1
-    resettime()
-    resetpause()
-
-    scene.delete()
-    scene = display(window =w,width=1200, height=850, background=(0.1, 0.1, 0.1))
-    scene.title = "GALAXIE"
+    resetscene()
     scene.fov = pi / 2
     scene.scale = (0.0005,0.0005,0.0005)
 
@@ -152,11 +188,6 @@ def galaxie(event):
             v = sqrt(l[i].v.x ** 2 + l[i].v.y ** 2 + l[i].v.z ** 2)
             l[i].color = ((v - vmin) / (vmax - vmin), 0.3, (vmax-v) / (vmax - vmin))
 
-    def nuageradial(corps, maxi):
-        corps.x = alea.normal(0, maxi)
-        corps.y = alea.normal(0, maxi)
-        corps.z = alea.normal(0, e)
-
     def vitesseradiale(corps):
         d = sqrt(corps.x * corps.x + corps.y * corps.y + corps.z * corps.z)
         vit = sqrt(100 * n * m * G / d)
@@ -165,22 +196,23 @@ def galaxie(event):
 
     def creercorps():
         nouveaucorps = sphere(radius=rayon)
-        nuageradial(nouveaucorps, L)
+        nuageradial(nouveaucorps, L,e)
         vitesseradiale(nouveaucorps)
         return nouveaucorps
 
-    def nbody():
-        ###creation d un astre central massif
-        trounoir = sphere(radius=rayon * 4, color=color.yellow)
-        trounoir.v = vector(0, 0, 0)
-        trounoir.x = 0
-        trounoir.y = 0
-        trounoir.z = 0
-        trounoir.m = mt
-        Corps = [trounoir]
+    ###creation d un astre central massif
+    trounoir = sphere(radius=rayon * 4, color=color.yellow)
+    trounoir.v = vector(0, 0, 0)
+    trounoir.x = 0
+    trounoir.y = 0
+    trounoir.z = 0
+    trounoir.m = mt
+    Corps = [trounoir]
+    for i in range(n - 1):
+        Corps.append(creercorps())
+
+    def nbody(Corps):
         t=t0
-        for i in range(n-1):
-            Corps.append(creercorps())
         while sw==1:
             M = acceleration(Corps)
             setpause()
@@ -194,16 +226,12 @@ def galaxie(event):
             color_galaxie(Corps[1:])
 
 
-    nbody()
+    nbody(Corps)
 
 def threebody(event):
     global G, scene,sw,speed,t0,c_pause
     sw = 2
-    resettime()
-    resetpause()
-
-    scene.delete()
-    scene = display(window=w, width=1200, height=850, background=(0.1, 0.1, 0.1))
+    resetscene()
     scene.scale=(0.5,0.5,0.5)
     scene.title = "3 corps"
     scene.fov = pi / 2
@@ -227,51 +255,42 @@ def threebody(event):
     corps1.m = 1
     corps2.m = 1
 
-    ###definition des 3corps
-    threebodies = [corps0,corps1,corps2]
-    C0 = threebodies[0]
-    C1 = threebodies[1]
-    C2 = threebodies[2]
     ###vitesses
-    C0.v = vector(-0.93240737 / 2, -0.86473146 / 2)
-    C1.v = vector(-0.93240737 / 2, -0.86473146 / 2)
-    C2.v = vector(0.93240737, 0.86473146, 0)
+    corps0.v = vector(-0.93240737 / 2, -0.86473146 / 2)
+    corps1.v = vector(-0.93240737 / 2, -0.86473146 / 2)
+    corps2.v = vector(0.93240737, 0.86473146, 0)
     ###positions
-    C0.x, C0.y, C0.z = -0.97000436, 0.24308753, 0
-    C1.x, C1.y, C1.z = 0.97000436, -0.24308753, 0
-    C2.x, C2.y, C2.z = 0, 0, 0
+    corps0.x, corps0.y, corps0.z = -0.97000436, 0.24308753, 0
+    corps1.x, corps1.y, corps1.z = 0.97000436, -0.24308753, 0
+    corps2.x, corps2.y, corps2.z = 0, 0, 0
+
+    Corps = [corps0, corps1, corps2]
 
     def nbody(Corps):
+        k=0
         t=t0
+        initgraph(color.red)
         ###Vpython settings###
         while sw ==2:
-            if t==t0+dt:
-                corps0.make_trail = True
-                corps0.trail_type = "curve"
-                corps1.make_trail = True
-                corps1.trail_type = "curve"
-                corps2.make_trail = True
-                corps2.trail_type = "curve"
+            maketrail(Corps, t, dt)
             M = acceleration(Corps,n,G)
             setpause()
             updatetime(t)
+            newpointgraph(t,k,Corps,200)
             t+=dt
+            k+=1
             rate(speed)
             for i in range(n):
                 corps = Corps[i]
                 MAJvitesse(corps, M[i],n,G,dt)
                 MAJposition(corps,dt)
 
-    nbody(threebodies)
+    nbody(Corps)
 
 def terrelune(event):
     global G, scene, sw,speed,t0,c_pause
     sw = 3
-    resettime()
-    resetpause()
-
-    scene.delete()
-    scene = display(window=w, width=1200, height=850, background=(0.1, 0.1, 0.1))
+    resetscene()
     scene.scale = (0.0000000013, 0.0000000013, 0.0000000013)
     scene.fov = pi / 2
 
@@ -287,9 +306,9 @@ def terrelune(event):
     t0 = 0
 
     ###definition des 2corps
-    corps0 = sphere(radius=6300000, make_trail=False, color=(0.1, 0.4, 0.8))
-    corps1 = sphere(pos=(0, 384000000, 0), make_trail=False, radius=1700000, color=(0.9, 0.9, 0.9))
-    TerreLune = [corps0, corps1]
+    corps0 = sphere(radius=6300000, make_trail=False, color=(0.1, 0.4, 0.8), retain = 5000)
+    corps1 = sphere(pos=(0, 384000000, 0), make_trail=False, radius=1700000, color=(0.9, 0.9, 0.9),retain = 8500)
+
     texte0 = text(text='Terre', align='center', depth=0.1, color=(0.1, 0.4, 0.8), height=20000000, font="Times")
     texte1 = text(text='Lune', align='center', depth=0.1, color=(0.9, 0.9, 0.9), height=20000000, font="Times")
 
@@ -303,17 +322,13 @@ def terrelune(event):
     corps0.x, corps0.y, corps0.z = 0, 0, 0
     corps1.x, corps1.y, corps1.z = 384000000, 0, 0
 
+    Corps = [corps0, corps1]
+
     def nbody(Corps):
         t=t0
         while sw == 3:
             scene.center = corps0.pos
-            if t == t0+dt:
-                corps0.make_trail = True
-                corps0.trail_type = "curve"
-                corps0.retain = 5000
-                corps1.make_trail = True
-                corps1.trail_type = "curve"
-                corps1.retain = 8500
+            maketrail(Corps,t,dt)
             setpause()
             updatetime(t)
             t+=dt
@@ -326,17 +341,12 @@ def terrelune(event):
                 MAJvitesse(corps, M[i],n,G,dt)
                 MAJposition(corps,dt)
 
-
-    nbody(TerreLune)
+    nbody(Corps)
 
 def saturne(event):
     global G, scene, sw, speed,t0,c_pause
     sw = 4
-    resettime()
-    resetpause()
-
-    scene.delete()
-    scene = display(window=w, width=1200, height=850, background=(0.1, 0.1, 0.1))
+    resetscene()
     scene.scale = (0.0000000037, 0.0000000037, 0.0000000037)
     scene.fov = pi / 2
     scene.forward=(0.1,0.9,-0.3)
@@ -373,7 +383,7 @@ def saturne(event):
             A[i, 2] = G * Msat * (-corps1.z) / D[i - 1]
         return A
 
-    def nuageradial(corps, maxi):
+    def nuageradialsat(corps, maxi):
         teta = random.uniform(0, 2 * pi)
         p = random.uniform(rsaturne * 1.3, rsaturne * 1.4)  # premier anneau
         q = random.uniform(rsaturne * 1.45, rsaturne * 1.6)  # deuxi?me anneau
@@ -392,22 +402,23 @@ def saturne(event):
 
     def creercorps():
         nouveaucorps = sphere(radius=rayon, color=color.orange)
-        nuageradial(nouveaucorps, L)
+        nuageradialsat(nouveaucorps, L)
         vitesseradiale(nouveaucorps)
         return nouveaucorps
 
-    def nbody():
+    ###creation d un astre central massif
+    Saturne = sphere(radius=rsaturne, color=color.orange)
+    Saturne.v = vector(0, 0, 0)
+    Saturne.x = 0
+    Saturne.y = 0
+    Saturne.z = 0
+    Saturne.m = Msat
+    Corps = [Saturne]
+    for i in range(n):
+        Corps.append(creercorps())
+
+    def nbody(Corps):
         t=t0
-        ###creation d un astre central massif
-        Saturne = sphere(radius=rsaturne, color=color.orange)
-        Saturne.v = vector(0, 0, 0)
-        Saturne.x = 0
-        Saturne.y = 0
-        Saturne.z = 0
-        Saturne.m = Msat
-        Corps = [Saturne]
-        for i in range(n):
-            Corps.append(creercorps())
         while sw == 4:
             M = acceleration(Corps)
             setpause()
@@ -420,81 +431,72 @@ def saturne(event):
                 MAJposition(corps,dt)
 
 
-    nbody()
+    nbody(Corps)
 
-def sphere__(event):
-    global G, scene, sw, speed,t0,c_pause
-    sw = 5
-    resettime()
-    resetpause()
-
-    scene.delete()
-    scene = display(window=w, width=1200, height=850, background=(0.1, 0.1, 0.1))
-    scene.scale = (0.022, 0.022, 0.022)
+def pyta(event):
+    global G, scene,sw,speed,t0,c_pause
+    sw = 2
+    resetscene()
+    scene.scale=(0.5,0.5,0.5)
+    scene.title = "3 corps"
     scene.fov = pi / 2
 
     # définition des paramètres
     G = 1  # constante gravitationnelle
-    dt = 0.5  # pas de temps
-    n = 120  # nombre de corps
-    m = 0.01  # masse des corps
-    L = 20  # Longueur caract?ristique
-    rayon = 0.5
+    dt = 0.0001  # pas de temps
+    n = 3  # nombre de corps
 
-    speed = 200
+    speed = 3000
     slid1.SetValue(speed)
     strspeed.SetLabel(str(speed))
+    rayon = 0.0001
 
-    t0=0
+    t0 = 0
 
-    def nuagespherique(corps, maxi):
-        teta = random.uniform(0, 2 * pi)
-        phi = random.uniform(0, 2 * pi)
-        corps.x = L * cos(teta) * cos(phi)
-        corps.y = L * cos(teta) * sin(phi)
-        corps.z = L * sin(teta)
+    corps0 = sphere(radius=rayon, make_trail=False, color=color.cyan,retain=2**10)
+    corps1 = sphere(radius=rayon, make_trail=False, color=color.white,retain=2**10)
+    corps2 = sphere(radius=rayon, make_trail=False, color=color.red,retain=2**10)
+    corps0.m = 3
+    corps1.m = 4
+    corps2.m = 5
 
-    def creercorps():
-        nouveaucorps = sphere(radius=rayon, color=color.green)
-        nuagespherique(nouveaucorps, L)
-        vitesseinitiale(nouveaucorps,0,0,0)
-        nouveaucorps.m = m
-        return nouveaucorps
+    ###vitesses
+    corps0.v = vector(0, 0)
+    corps1.v = vector(0, 0)
+    corps2.v = vector(0, 0)
+    ###positions
+    corps0.x, corps0.y, corps0.z = 1, 3, 0
+    corps1.x, corps1.y, corps1.z = -2, -1, 0
+    corps2.x, corps2.y, corps2.z = 1, -1, 0
 
-    def nbody():
-        ###creation d un astre central massif
-        trounoir = sphere(radius=rayon * 2, color=color.red)
-        trounoir.v = vector(0, 0, 0)
-        trounoir.x = 0
-        trounoir.y = 0
-        trounoir.z = 0
-        trounoir.m = 1000 * m
-        Corps = [trounoir]
-        for i in range(n - 1):
-            Corps.append(creercorps())
+    Corps = [corps0, corps1, corps2]
+
+    def nbody(Corps):
+        k=0
         t=t0
-        while sw == 5:
+        initgraph(color.red)
+        ###Vpython settings###
+        while sw ==2:
+            maketrail(Corps, t, dt)
             M = acceleration(Corps,n,G)
             setpause()
             updatetime(t)
+            newpointgraph(t,k,Corps,200)
             t+=dt
+            k+=1
             rate(speed)
             for i in range(n):
                 corps = Corps[i]
                 MAJvitesse(corps, M[i],n,G,dt)
                 MAJposition(corps,dt)
 
-
-    nbody()
+    nbody(Corps)
 
 def solaire(event):
     global G, scene, sw, speed,t0,c_pause
     sw = 6
-    resettime()
-    resetpause()
+    resetscene()
 
-    scene.delete()
-    scene = display(window=w, width=1200, height=850, background=(0.1, 0.1, 0.1))
     scene.fov = pi / 2
     # définition des paramètres
     G = 6.67 * 10 ** -11  # constante gravitationnelle
@@ -506,7 +508,7 @@ def solaire(event):
 
     t0 = 0
 
-
+    ##couleurs
     colorS=(1, 1, 0.4)
     colorM=(0.9, 0.9, 0.9)
     colorV =(1, 0.7, 0.2)
@@ -526,6 +528,7 @@ def solaire(event):
     corps6 = sphere(radius=58232000*10, make_trail=False, color=colorS, retain=6500)
     corps7 = sphere(radius=25362000*10, make_trail=False, color=colorU, retain=8000)
     corps8 = sphere(radius=24622000*10, make_trail=False, color=colorN, retain=10000)
+
     corps0.m = 1.9891 * 10 ** 30
     corps1.m = 330.2 * 10 ** 21
     corps2.m = 4.8685 * 10 ** 24
@@ -536,38 +539,27 @@ def solaire(event):
     corps7.m = 8.6810 * 10 ** 25
     corps8.m = 102.43 * 10 ** 24
 
-    ###definition des 3corps
-    syssolaire = [corps0, corps1, corps2, corps3, corps4, corps5, corps6, corps7, corps8]
-    C0 = syssolaire[0]
-    C1 = syssolaire[1]
-    C2 = syssolaire[2]
-    C3 = syssolaire[3]
-    C4 = syssolaire[4]
-    C5 = syssolaire[5]
-    C6 = syssolaire[6]
-    C7 = syssolaire[7]
-    C8 = syssolaire[8]
-
     ###vitesses
-    C0.v = vector(0, 0, 0)
-    C1.v = vector(0, 58000.98, 0)
-    C2.v = vector(0, -35000.26, 0)
-    C3.v = vector(0, 30000.287, 0)
-    C4.v = vector(0, -26000.499, 0)
-    C5.v = vector(0, 13000.72, 0)
-    C6.v = vector(0, -10000.183, 0)
-    C7.v = vector(0, 7000.128, 0)
-    C8.v = vector(0, -5000.479, 0)
+    corps0.v = vector(0, 0, 0)
+    corps1.v = vector(0, 58000.98, 0)
+    corps2.v = vector(0, -35000.26, 0)
+    corps3.v = vector(0, 30000.287, 0)
+    corps4.v = vector(0, -26000.499, 0)
+    corps5.v = vector(0, 13000.72, 0)
+    corps6.v = vector(0, -10000.183, 0)
+    corps7.v = vector(0, 7000.128, 0)
+    corps8.v = vector(0, -5000.479, 0)
+
     ###positions
-    C0.x, C0.y, C0.z = 0, 0, 0
-    C1.x, C1.y, C1.z = 46001272000, 0, 0
-    C2.x, C2.y, C2.z = -107476259000, 0, 0
-    C3.x, C3.y, C3.z = 147098074000, 0, 0
-    C4.x, C4.y, C4.z = -206644545000, 0, 0
-    C5.x, C5.y, C5.z = 740520000000, 0, 0
-    C6.x, C6.y, C6.z = -1349467375000, 0, 0
-    C7.x, C7.y, C7.z = 2734998229000, 0, 0
-    C8.x, C8.y, C8.z = -4452940833000, 0, 0
+    corps1.x, corps0.y, corps0.z = 0, 0, 0
+    corps1.x, corps1.y, corps1.z = 46001272000, 0, 0
+    corps2.x, corps2.y, corps2.z = -107476259000, 0, 0
+    corps3.x, corps3.y, corps3.z = 147098074000, 0, 0
+    corps4.x, corps4.y, corps4.z = -206644545000, 0, 0
+    corps5.x, corps5.y, corps5.z = 740520000000, 0, 0
+    corps6.x, corps6.y, corps6.z = -1349467375000, 0, 0
+    corps7.x, corps7.y, corps7.z = 2734998229000, 0, 0
+    corps8.x, corps8.y, corps8.z = -4452940833000, 0, 0
 
     ##texteS1 = text(text='S', align='center', depth=0.1, color=colorS, height=200000000000, font="Times")
     texteM1 = text(text='Me', align='center', depth=0.1, color=colorM, height=15000000000, font="Times")
@@ -579,30 +571,13 @@ def solaire(event):
     texteU = text(text='U', align='center', depth=0.1, color=colorU, height=65000000000, font="Times")
     texteN = text(text='N', align='center', depth=0.1, color=colorN, height=75000000000, font="Times")
 
+    Corps = [corps0, corps1, corps2, corps3, corps4, corps5, corps6, corps7, corps8]
 
     def nbody(Corps):
         t=t0
         while sw == 6:
             scene.center = corps0.pos
-            if t == t0+dt:
-                corps0.make_trail = True
-                corps0.trail_type = "curve"
-                corps1.make_trail = True
-                corps1.trail_type = "curve"
-                corps2.make_trail = True
-                corps2.trail_type = "curve"
-                corps3.make_trail = True
-                corps3.trail_type = "curve"
-                corps4.make_trail = True
-                corps4.trail_type = "curve"
-                corps5.make_trail = True
-                corps5.trail_type = "curve"
-                corps6.make_trail = True
-                corps6.trail_type = "curve"
-                corps7.make_trail = True
-                corps7.trail_type = "curve"
-                corps8.make_trail = True
-                corps8.trail_type = "curve"
+            maketrail(Corps, t, dt)
             setpause()
             updatetime(t)
             t+=dt
@@ -612,28 +587,24 @@ def solaire(event):
             texteV.pos = corps2.pos + (0, 1e10, 0)
             texteT.pos = corps3.pos + (0, 1e10, 0)
             texteM2.pos = corps4.pos + (0, 1e10, 0)
-            texteJ.pos = corps5.pos + (0, 1e10, 0)
+            texteJ.pos = corps5.pos + (4e10, 0, 0)
             texteS2.pos = corps6.pos + (-8e10,0 , 0)
-            texteU.pos = corps7.pos + (8e10,0 , 0)
-            texteN.pos = corps8.pos + (-8e10,0 ,0 )
+            texteU.pos = corps7.pos + (4e10,0 , 0)
+            texteN.pos = corps8.pos + (-4e10,0 ,0 )
             rate(speed)
             for i in range(n):
                 corps = Corps[i]
                 MAJvitesse(corps, M[i],n,G,dt)
                 MAJposition(corps,dt)
 
-    nbody(syssolaire)
+    nbody(Corps)
 
 def reset(event):
     global scene, sw,c_pause
     sw = 0
-    resettime()
-    resetpause()
-
-    scene.delete()
-    scene = display(window=w, width=1200, height=850, background=(0.1, 0.1, 0.1))
+    resetscene()
     scene.scale = (0.013, 0.013, 0.013)
-    texte3d1 = text(text='N-corps', align='center', depth=-2, color=(0.7, 0.2, 0.2), height=20, font="Sans",pos=(0, -6, 0))
+    text(text='N-corps', align='center', depth=-2, color=(0.7, 0.2, 0.2), height=20, font="Sans",pos=(0, -6, 0))
 
     while sw == 0 : rate(1)
 
@@ -741,7 +712,7 @@ def propos(event):
     else : return 0
 
 def fenetre():
-    global scene,w,slid1,speed,sw,strspeed,titlefont,textboldfont,textfont,timetxt,texttime,c_pause,btnpause,pause1,play1
+    global scene,w,slid1,speed,sw,strspeed,titlefont,textboldfont,textfont,timetxt,texttime,c_pause,btnpause,pause1,play1,graph1,f1
 
     speed = 1
     c_pause = 0
@@ -754,7 +725,7 @@ def fenetre():
     textfont = wx.Font(10, wx.SCRIPT, wx.NORMAL, wx.NORMAL)
     timefont = wx.Font(15, wx.MODERN, wx.NORMAL, wx.NORMAL)
 
-    w = window(title = "N-Corps "+str(version),menus=True,  width=1600, height=870, style=(wx.DEFAULT_FRAME_STYLE) & ~ (wx.RESIZE_BORDER|wx.MAXIMIZE_BOX|wx.CLOSE_BOX),x=int((ws - 1600) / 2), y=int((hs - 850)) / 2)
+    w = window(title = "N-Corps "+str(version),menus=True,  width=1600, height=870, style=(wx.DEFAULT_FRAME_STYLE) & ~ (wx.RESIZE_BORDER|wx.MAXIMIZE_BOX|wx.CLOSE_BOX),     x=int((ws - 1600) / 2), y=int((hs - 850)) / 2)
     pnl = w.panel
 
     timecolour = (150,40,50)
@@ -772,6 +743,9 @@ def fenetre():
     scene = display(window=w, width=1200, height=850, background=backcolour)
     scene.scale = (0.013, 0.013, 0.013)
 
+    graph1 = gdisplay(window = w,width=400, height=200, xtitle='Temps (s)', ytitle='Energie (J)', foreground=color.black, background=(0.9, 0.9, 0.9), x=1210, y=280)
+    f1 = gcurve()
+
     menubar = w.menubar
     menubar.Remove(0)
     menu1 = wx.Menu()
@@ -786,7 +760,7 @@ def fenetre():
     menubar.Append(menu2, 'Aide')
 
 
-    texte3d1 = text(text='N-corps', align='center', depth=-2, color=(0.7, 0.2, 0.2), height=20, font="Sans", pos=(0, -6, 0))
+    text(text='N-corps', align='center', depth=-2, color=(0.7, 0.2, 0.2), height=20, font="Sans", pos=(0, -6, 0))
 
     titletext = wx.StaticText(pnl, pos=(1320, 30), label="PREREGLAGES")
     titletext.SetFont(titlefont)
@@ -799,8 +773,8 @@ def fenetre():
     btn3.Bind(wx.EVT_BUTTON,terrelune)
     btn4 = wx.Button(pnl, label='Saturne', pos=(1360, 140))
     btn4.Bind(wx.EVT_BUTTON, saturne)
-    btn5 = wx.Button(pnl, label='Sphere', pos=(1460, 100))
-    btn5.Bind(wx.EVT_BUTTON, sphere__)
+    btn5 = wx.Button(pnl, label='Pytagoricien', pos=(1460, 100))
+    btn5.Bind(wx.EVT_BUTTON, pyta)
     btn5 = wx.Button(pnl, label='Solaire', pos=(1460, 140))
     btn5.Bind(wx.EVT_BUTTON, solaire)
     btnq = wx.Button(pnl,label='Quitter', pos=(1497, 785))
@@ -816,13 +790,13 @@ def fenetre():
     btnpause.Bind(wx.EVT_BUTTON, pause)
 
 
-    slid1 = wx.Slider(pnl, pos=(1330, 230),size=(190,50),  minValue=1, maxValue=1000)
+    slid1 = wx.Slider(pnl, pos=(1330, 230),size=(190,50),  minValue=1, maxValue=5000)
     slid1.Bind(wx.EVT_SCROLL, setspeed)
     strspeed = wx.StaticText(pnl, pos=(1445, 200), label=str(speed))
 
     text1 = wx.StaticText(pnl, pos=(1320, 200), label="Vitesse de l'animation : ")
     text2 =wx.StaticText(pnl, pos=(1320, 230), label="1")
-    text3 = wx.StaticText(pnl, pos=(1520, 230), label="1000")
+    text3 = wx.StaticText(pnl, pos=(1520, 230), label="5000")
 
 
 fenetre()
