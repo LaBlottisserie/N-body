@@ -10,7 +10,7 @@ import wx
 import os
 import sys
 
-version="beta 1.2.3"
+version="beta 1.2.4"
 
 aide_thread = 0
 propos_thread = 0
