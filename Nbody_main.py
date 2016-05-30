@@ -10,7 +10,7 @@ import wx
 import os
 import sys
 
-version="beta 1.2.4"
+version="beta 1.2.3"
 
 aide_thread = 0
 propos_thread = 0
@@ -742,8 +742,10 @@ def fenetre():
     scene = display(window=w, width=1200, height=850, background=backcolour)
     scene.scale = (0.013, 0.013, 0.013)
 
-    graph1 = gdisplay(window = w,width=400, height=200, xtitle='Temps (s)', ytitle='Energie (J)', foreground=color.black, background=(0.9, 0.9, 0.9), x=1210, y=280)
-    f1 = gcurve()
+    graph1 = gdisplay(window=w, width=400, height=200, xtitle='Temps (s)', ytitle='Energie mecanique (J)',
+                      foreground=color.black,
+                      background=(0.9, 0.9, 0.9), x=1210, y=560)
+    f1=gcurve()
 
     menubar = w.menubar
     menubar.Remove(0)
