@@ -450,25 +450,25 @@ def pyta(event):
 
     scene.delete()
     scene = display(window=w, width=1200, height=850, background=(0.1, 0.1, 0.1))
-    scene.scale=(0.5,0.5,0.5)
+    scene.scale=(0.2,0.2,0.2)
     scene.title = "3 corps"
     scene.fov = pi / 2
 
     # définition des paramètres
     G = 1  # constante gravitationnelle
-    dt = 0.001  # pas de temps
+    dt = 0.2*10**-4  # pas de temps
     n = 3  # nombre de corps
 
     speed = 500  # higher is slower
     slid1.SetValue(speed)
     strspeed.SetLabel(str(speed))
-    rayon = 0.
+    rayon = 0.08
 
     t0 = 0
 
-    corps0 = sphere(radius=rayon, make_trail=False, color=color.cyan,retain=2**10)
-    corps1 = sphere(radius=rayon, make_trail=False, color=color.white,retain=2**10)
-    corps2 = sphere(radius=rayon, make_trail=False, color=color.red,retain=2**10)
+    corps0 = sphere(radius=rayon, make_trail=False, color=color.cyan,retain=2**20)
+    corps1 = sphere(radius=rayon, make_trail=False, color=color.white,retain=2**20)
+    corps2 = sphere(radius=rayon, make_trail=False, color=color.red,retain=2**20)
     corps0.m = 3
     corps1.m = 4
     corps2.m = 5
